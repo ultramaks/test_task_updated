@@ -10,7 +10,7 @@
   tasks:
     - name: Git checkout
       ansible.builtin.git:
-        repo: 'https://github.com/ultramaks/test_task.git'
+        repo: 'https://github.com/ultramaks/test_task_updated.git'
         dest: /root/test_task/
         version: main
       changed_when: false
