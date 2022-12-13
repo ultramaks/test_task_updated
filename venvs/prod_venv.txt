@@ -1,3 +1,2 @@
 ansible==2.9.10
 pytest==5.3.1
-fastapi==0.61.0
