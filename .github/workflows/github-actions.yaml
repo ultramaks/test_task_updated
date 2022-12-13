@@ -1,0 +1,48 @@
+name: Invokes the Ansible playbook at commit into the main branch
+run-name: Deploy caused by @${{ github.actor }} ${{ github.event_name }}
+
+on:
+  push:
+    branches:
+    - main
+    paths:
+      - "venvs/**.txt"
+
+jobs:
+  build:
+    name: Lint Ansible Files and install Python venv
+    runs-on: ubuntu-20.04
+#    runs-on: self-hosted
+    steps:
+    - name: Checkout sources
+      uses: actions/checkout@v3
+      with:
+        ref: 'main'
+    - name: Linting the playbook
+      uses: ansible-community/ansible-lint-action@main
+#      with:
+#        targets:
+#          ansible/playbook.yaml
+#          ""
+
+  deployAnsible:
+    name: Deployng Ansible playbook
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout sources
+      uses: actions/checkout@v3
+      with:
+        ref: 'main'
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.x'
+    - name: Running Ansible playbook
+      uses: dawidd6/action-ansible-playbook@v2.6.1
+      with: 
+        playbook: ansible/playbook.yaml
+        options:
+          --inventory ansible/inventory.yaml
+#          --extra-vars workspace=${{ github.workspace }}
+#        inventory: localhost

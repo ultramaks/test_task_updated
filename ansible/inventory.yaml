@@ -1,0 +1,10 @@
+all:
+  hosts:
+    vm01:
+      ansible_host: 172-104-230-229.ip.linodeusercontent.com
+      ansible_user: root
+      ansible_password: A236bX1888
+    vm02:
+      ansible_host: 139-144-69-10.ip.linodeusercontent.com
+      ansible_user: root
+      ansible_password: A236bX1888

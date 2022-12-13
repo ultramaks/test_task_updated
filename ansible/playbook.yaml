@@ -1,0 +1,52 @@
+- name: Creating the venvs based on the names of requirements files
+#  hosts: localhost
+  hosts: all
+  vars:
+#    venv_dir: /home/INTEXSOFT/maxim.filippov/Work/Test/test_task/
+    venv_dir: /opt/python_venvs/
+#    req_files: /home/INTEXSOFT/maxim.filippov/Work/test_task/venvs/
+    req_files: '/root/test_task/venvs/'
+
+  tasks:
+    - name: Git checkout
+      ansible.builtin.git:
+        repo: 'https://github.com/ultramaks/test_task.git'
+        dest: /root/test_task/
+        version: main
+      changed_when: false
+
+    - name: Getting venv names from req.txt files
+      ansible.builtin.find:
+        path: '{{ req_files }}'
+        # Use only txt files as venv names
+        use_regex: true
+        patterns: ['^.*.txt$']
+      register: found_files
+
+    - name: Debug of getting venv names
+      ansible.builtin.debug:
+        msg: '{{ req_files }}'
+
+    - name: Setting venvs list
+      ansible.builtin.set_fact:
+        venv_name: "{{ found_files['files'] | map(attribute='path') | map('regex_replace', '^.*/(.*)\\.txt$', '\\1') | list }}"
+
+
+    - name: Debug of setting vevs
+      ansible.builtin.debug:
+        msg: "{{ venv_name }}"
+
+    - name: Creating venvs
+      ansible.builtin.command: 'python3 -m venv {{ venv_dir }}{{ item }}'
+      loop: '{{ venv_name }}'
+      changed_when: false
+      become: true
+
+    - name: Install project requirements in venv
+      ansible.builtin.pip:
+        requirements: '{{ req_files }}{{ item }}.txt'
+        virtualenv: '{{ venv_dir }}{{ item }}'
+#        virtualenv_python: python3
+      loop: '{{ venv_name }}'
+      changed_when: false
+      become: true
